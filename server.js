@@ -18,20 +18,26 @@ app.use(express.json());
 app.use(express.static(__dirname));
 app.use('/uploads', express.static('uploads'));
 
-// Conexión a MySQL
-const db = mysql.createConnection({
+// Conexión a MySQL con pool (más estable en producción)
+const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+// Verificar conexión al iniciar
+db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a MySQL:', err);
         return;
     }
     console.log('✅ Conectado a MySQL correctamente');
+    connection.release();
     setDb(db);
     setIo(io);
 });
@@ -49,6 +55,6 @@ app.use('/api', router);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`🌐 Servidor corriendo en http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Servidor corriendo en puerto ${PORT}`);
 });

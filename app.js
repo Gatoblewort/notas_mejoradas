@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000/api';
+const API = window.location.origin + '/api';
 let token = localStorage.getItem('token');
 let colorSeleccionado = 'amarillo';
 let todasLasNotas = [];
