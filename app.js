@@ -60,6 +60,8 @@ function mostrarApp(usuario) {
     if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = inicial;
     if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = nombre;
     if (document.getElementById('userAvatarSide')) document.getElementById('userAvatarSide').textContent = inicial;
+    if (document.getElementById('userNameMobile')) document.getElementById('userNameMobile').textContent = nombre;
+    if (document.getElementById('userAvatarMobile')) document.getElementById('userAvatarMobile').textContent = inicial;
 
     cargarNotas();
     verificarRecordatorios();
@@ -146,11 +148,11 @@ function actualizarStats(notas) {
     const favoritas = notas.filter(n => n.favorita).length;
     const conArchivos = notas.filter(n => n.archivos && n.archivos.length > 0).length;
 
-    ['totalNotas', 'totalNotasSide'].forEach(id => {
+    ['totalNotas', 'totalNotasSide', 'totalNotasMobile'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = total;
     });
-    ['totalFavoritas', 'totalFavoritasSide'].forEach(id => {
+    ['totalFavoritas', 'totalFavoritasSide', 'totalFavoritasMobile'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = favoritas;
     });
@@ -180,7 +182,9 @@ function filtrarPrioridad(p, btn) {
 }
 
 function aplicarFiltros() {
-    const termino = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const terminoDesktop = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const terminoMobile = (document.getElementById('searchInputMobile')?.value || '').toLowerCase();
+    const termino = terminoDesktop || terminoMobile;
 
     let filtradas = todasLasNotas.filter(nota => {
         const matchSearch = !termino ||
@@ -261,7 +265,7 @@ function renderizarPostits(notas) {
 }
 
 // ================================
-// DRAG
+// DRAG (solo escritorio)
 // ================================
 function hacerArrastrable(el) {
     let startX, startY, startLeft, startTop, dragging = false;
@@ -400,14 +404,12 @@ function abrirNota(nota) {
     document.getElementById('verTitulo').textContent = nota.titulo;
     document.getElementById('verContenido').textContent = nota.contenido || '';
     document.getElementById('verFecha').textContent = formatearFecha(nota.fecha);
-
     document.getElementById('verCategoria').textContent = `📌 ${nota.categoria || 'general'}`;
     document.getElementById('verPrioridad').textContent =
         nota.prioridad === 'alta' ? '🔴 Alta' :
         nota.prioridad === 'baja' ? '🟢 Baja' : '🟡 Media';
     document.getElementById('verRecordatorio').textContent =
         nota.recordatorio ? `⏰ ${formatearFecha(nota.recordatorio)}` : '';
-
     document.getElementById('btnFavorita').textContent =
         nota.favorita ? '⭐ Quitar favorita' : '☆ Agregar favorita';
 

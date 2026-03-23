@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Notas</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mis Notas">
     <link rel="apple-touch-icon" href="/icon-192.png">
-
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body class="dark-mode">
@@ -58,6 +55,41 @@
     <!-- APP PRINCIPAL -->
     <div id="appScreen" class="screen">
 
+        <!-- Overlay para cerrar sidebar móvil -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="cerrarSidebarMobile()"></div>
+
+        <!-- Sidebar deslizable móvil -->
+        <div class="sidebar-mobile" id="sidebarMobile">
+            <div class="sidebar-logo">📝 Mis Notas</div>
+            <div class="user-info-side">
+                <div class="avatar" id="userAvatarMobile">F</div>
+                <div>
+                    <div class="user-name" id="userNameMobile">Fernando</div>
+                    <div class="user-sub">Mi espacio personal</div>
+                </div>
+            </div>
+            <div class="sidebar-stats">
+                <div class="stat"><span id="totalNotasMobile">0</span><small>Notas</small></div>
+                <div class="stat"><span id="totalFavoritasMobile">0</span><small>⭐</small></div>
+            </div>
+            <p class="filter-title">Categorías</p>
+            <button class="filter-btn active" onclick="filtrarCategoria('todas', this); cerrarSidebarMobile()">📋 Todas</button>
+            <button class="filter-btn" onclick="filtrarCategoria('general', this); cerrarSidebarMobile()">📌 General</button>
+            <button class="filter-btn" onclick="filtrarCategoria('trabajo', this); cerrarSidebarMobile()">💼 Trabajo</button>
+            <button class="filter-btn" onclick="filtrarCategoria('personal', this); cerrarSidebarMobile()">👤 Personal</button>
+            <button class="filter-btn" onclick="filtrarCategoria('ideas', this); cerrarSidebarMobile()">💡 Ideas</button>
+            <button class="filter-btn" onclick="filtrarCategoria('favoritas', this); cerrarSidebarMobile()">⭐ Favoritas</button>
+            <p class="filter-title">Prioridad</p>
+            <button class="filter-btn" onclick="filtrarPrioridad('todas', this); cerrarSidebarMobile()">🔘 Todas</button>
+            <button class="filter-btn" onclick="filtrarPrioridad('alta', this); cerrarSidebarMobile()">🔴 Alta</button>
+            <button class="filter-btn" onclick="filtrarPrioridad('media', this); cerrarSidebarMobile()">🟡 Media</button>
+            <button class="filter-btn" onclick="filtrarPrioridad('baja', this); cerrarSidebarMobile()">🟢 Baja</button>
+            <div class="sidebar-bottom">
+                <button class="filter-btn" onclick="toggleTheme()">🌙 Tema</button>
+                <button class="filter-btn" onclick="logout()">🚪 Salir</button>
+            </div>
+        </div>
+
         <!-- Sidebar escritorio -->
         <div class="sidebar">
             <div class="sidebar-logo">📝 Mis Notas</div>
@@ -94,25 +126,32 @@
 
         <!-- Contenido principal -->
         <div class="main-content">
+
+            <!-- Header móvil -->
             <div class="header-mobile">
-                <div class="user-info">
-                    <div class="avatar" id="userAvatar">F</div>
-                    <div class="user-name" id="userName">Fernando</div>
+                <div class="header-mobile-left">
+                    <button class="menu-btn" onclick="abrirSidebarMobile()">☰</button>
+                    <span class="header-title">Mis Notas</span>
                 </div>
-                <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+                <div class="header-mobile-right">
+                    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+                    <button class="btn-nueva-mobile" onclick="abrirModal()">+ Nueva</button>
+                </div>
             </div>
 
+            <!-- Stats móvil -->
             <div class="stats-bar mobile-only">
                 <div class="stat"><span id="totalNotas">0</span><small>Notas</small></div>
                 <div class="stat"><span id="totalFavoritas">0</span><small>Favoritas</small></div>
                 <div class="stat"><span id="totalArchivos">0</span><small>Archivos</small></div>
             </div>
 
-            <div class="toolbar">
-                <input type="text" class="search-input" placeholder="🔍 Buscar notas..." id="searchInput" oninput="buscarNotas()">
-                <button class="btn-nueva desktop-only" onclick="abrirModal()">+ Nueva nota</button>
+            <!-- Buscador móvil -->
+            <div class="search-mobile">
+                <input type="text" placeholder="🔍 Buscar notas..." id="searchInputMobile" oninput="buscarNotas()">
             </div>
 
+            <!-- Filtros chips móvil -->
             <div class="filtros-mobile mobile-only">
                 <button class="filter-chip active" onclick="filtrarCategoria('todas', this)">Todas</button>
                 <button class="filter-chip" onclick="filtrarCategoria('trabajo', this)">💼 Trabajo</button>
@@ -121,13 +160,18 @@
                 <button class="filter-chip" onclick="filtrarCategoria('favoritas', this)">⭐ Favoritas</button>
             </div>
 
+            <!-- Toolbar escritorio -->
+            <div class="toolbar">
+                <input type="text" class="search-input" placeholder="🔍 Buscar notas..." id="searchInput" oninput="buscarNotas()">
+                <button class="btn-nueva desktop-only" onclick="abrirModal()">+ Nueva nota</button>
+            </div>
+
             <div class="postit-canvas" id="postitCanvas"></div>
         </div>
 
-        <button class="fab mobile-only" onclick="abrirModal()">+</button>
-
+        <!-- Navbar móvil -->
         <div class="navbar mobile-only">
-            <button class="nav-btn active">🏠<span>Inicio</span></button>
+            <button class="nav-btn active" onclick="filtrarCategoria('todas', this)">🏠<span>Inicio</span></button>
             <button class="nav-btn" onclick="filtrarCategoria('favoritas', this)">⭐<span>Favoritas</span></button>
             <button class="nav-btn" onclick="filtrarPrioridad('alta', this)">🔴<span>Urgente</span></button>
             <button class="nav-btn" onclick="logout()">🚪<span>Salir</span></button>
@@ -143,7 +187,6 @@
             </div>
             <input type="text" id="notaTitulo" placeholder="Título...">
             <textarea id="notaContenido" placeholder="Escribe tu nota aquí..."></textarea>
-
             <div class="form-row">
                 <select id="notaCategoria">
                     <option value="general">📌 General</option>
@@ -157,12 +200,10 @@
                     <option value="baja">🟢 Baja</option>
                 </select>
             </div>
-
             <div class="form-row">
                 <label style="color:var(--text2); font-size:13px;">⏰ Recordatorio:</label>
                 <input type="datetime-local" id="notaRecordatorio" style="flex:1; padding:8px; border-radius:10px; border:none; background:var(--bg); color:var(--text);">
             </div>
-
             <div class="color-picker">
                 <span class="color-dot amarillo active" onclick="seleccionarColor('amarillo', this)"></span>
                 <span class="color-dot rosa" onclick="seleccionarColor('rosa', this)"></span>
@@ -170,7 +211,6 @@
                 <span class="color-dot verde" onclick="seleccionarColor('verde', this)"></span>
                 <span class="color-dot morado" onclick="seleccionarColor('morado', this)"></span>
             </div>
-
             <div class="adjuntos-bar">
                 <label class="adj-btn" for="inputImagen">🖼️ Imagen</label>
                 <input type="file" id="inputImagen" accept="image/*" style="display:none" onchange="previewArchivo(this, 'imagen')">
@@ -178,9 +218,7 @@
                 <input type="file" id="inputArchivo" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="previewArchivo(this, 'archivo')">
                 <button class="adj-btn" onclick="abrirGrabador()">🎤 Grabar</button>
             </div>
-
             <div id="archivosPreview"></div>
-
             <div id="grabadorAudio" style="display:none">
                 <div class="grabador-container">
                     <div class="grabador-tiempo" id="grabadorTiempo">00:00</div>
@@ -192,7 +230,6 @@
                     <audio id="audioGrabado" controls style="display:none; width:100%"></audio>
                 </div>
             </div>
-
             <button class="btn-primary" id="btnGuardar" onclick="guardarNota()">💾 Guardar nota</button>
         </div>
     </div>
@@ -227,14 +264,25 @@
 
     <script src="app.js"></script>
 
-    <!-- Registrar Service Worker PWA -->
+    <!-- Service Worker PWA -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('✅ Service Worker registrado'))
-                    .catch((err) => console.log('❌ Error SW:', err));
+                    .then(() => console.log('✅ SW registrado'))
+                    .catch(err => console.log('❌ SW error:', err));
             });
+        }
+
+        // Sidebar móvil
+        function abrirSidebarMobile() {
+            document.getElementById('sidebarMobile').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('open');
+        }
+
+        function cerrarSidebarMobile() {
+            document.getElementById('sidebarMobile').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
         }
     </script>
 </body>
