@@ -168,15 +168,29 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
     min-height: calc(100vh - 200px);
 }
 
-/* Escritorio: post-its flotantes */
+/* Escritorio: post-its flotantes arrastrables */
 @media (min-width: 769px) {
-    .postit { position: absolute; width: 200px; min-height: 160px; }
+    .postit { position: absolute; width: 210px; min-height: 160px; }
 }
 
-/* Móvil: grid */
+/* Móvil: lista de 1 columna, también arrastrables */
 @media (max-width: 768px) {
-    .postit-canvas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; overflow: visible; min-height: auto; }
-    .postit { position: relative !important; left: auto !important; top: auto !important; width: 100% !important; }
+    .postit-canvas {
+        display: block;
+        position: relative;
+        overflow: visible;
+        min-height: calc(100vh - 250px);
+        padding: 15px;
+    }
+
+    .postit {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: 100% !important;
+        margin-bottom: 12px;
+        touch-action: none;
+    }
 }
 
 .postit {
@@ -222,12 +236,12 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
 /* EMPTY STATE */
 .empty-state {
-    grid-column: 1 / -1; text-align: center; padding: 60px 20px;
-    color: var(--text2); position: absolute; width: 100%; top: 50%; transform: translateY(-50%);
+    text-align: center; padding: 60px 20px;
+    color: var(--text2);
 }
 
-@media (max-width: 768px) {
-    .empty-state { position: relative; top: auto; transform: none; }
+@media (min-width: 769px) {
+    .empty-state { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); }
 }
 
 .empty-state .icon { font-size: 50px; margin-bottom: 15px; }
