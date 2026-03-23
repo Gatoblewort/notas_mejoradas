@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Notas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="dark-mode">
+
+    <!-- LOGIN -->
+    <div id="loginScreen" class="screen active">
+        <div class="auth-container">
+            <div class="logo">📝</div>
+            <h1>Mis Notas</h1>
+            <p class="subtitle">Tu espacio personal</p>
+            <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Contraseña">
+            </div>
+            <button class="btn-primary" onclick="login()">Iniciar sesión</button>
+            <p class="switch-auth">¿No tienes cuenta? <span onclick="showRegister()">Regístrate</span></p>
+        </div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="registerScreen" class="screen">
+        <div class="auth-container">
+            <div class="logo">📝</div>
+            <h1>Crear cuenta</h1>
+            <p class="subtitle">Únete gratis</p>
+            <div class="form-group">
+                <input type="text" id="registerName" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+                <input type="email" id="registerEmail" placeholder="Correo electrónico">
+            </div>
+            <div class="form-group">
+                <input type="password" id="registerPassword" placeholder="Contraseña">
+            </div>
+            <button class="btn-primary" onclick="register()">Crear cuenta</button>
+            <p class="switch-auth">¿Ya tienes cuenta? <span onclick="showLogin()">Inicia sesión</span></p>
+        </div>
+    </div>
+
+    <!-- APP PRINCIPAL -->
+    <div id="appScreen" class="screen">
+
+        <!-- Sidebar escritorio -->
+        <div class="sidebar">
+            <div class="sidebar-logo">📝 Mis Notas</div>
+            <div class="user-info-side">
+                <div class="avatar" id="userAvatarSide">F</div>
+                <div>
+                    <div class="user-name" id="userNameSide">Fernando</div>
+                    <div class="user-sub">Mi espacio personal</div>
+                </div>
+            </div>
+            <div class="sidebar-stats">
+                <div class="stat"><span id="totalNotasSide">0</span><small>Notas</small></div>
+                <div class="stat"><span id="totalFavoritasSide">0</span><small>⭐</small></div>
+            </div>
+            <div class="sidebar-filters">
+                <p class="filter-title">Categorías</p>
+                <button class="filter-btn active" onclick="filtrarCategoria('todas', this)">📋 Todas</button>
+                <button class="filter-btn" onclick="filtrarCategoria('general', this)">📌 General</button>
+                <button class="filter-btn" onclick="filtrarCategoria('trabajo', this)">💼 Trabajo</button>
+                <button class="filter-btn" onclick="filtrarCategoria('personal', this)">👤 Personal</button>
+                <button class="filter-btn" onclick="filtrarCategoria('ideas', this)">💡 Ideas</button>
+                <button class="filter-btn" onclick="filtrarCategoria('favoritas', this)">⭐ Favoritas</button>
+                <p class="filter-title">Prioridad</p>
+                <button class="filter-btn" onclick="filtrarPrioridad('todas', this)">🔘 Todas</button>
+                <button class="filter-btn" onclick="filtrarPrioridad('alta', this)">🔴 Alta</button>
+                <button class="filter-btn" onclick="filtrarPrioridad('media', this)">🟡 Media</button>
+                <button class="filter-btn" onclick="filtrarPrioridad('baja', this)">🟢 Baja</button>
+            </div>
+            <div class="sidebar-bottom">
+                <button class="filter-btn" onclick="toggleTheme()">🌙 Tema</button>
+                <button class="filter-btn" onclick="logout()">🚪 Salir</button>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <div class="header-mobile">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">F</div>
+                    <div class="user-name" id="userName">Fernando</div>
+                </div>
+                <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+            </div>
+
+            <div class="stats-bar mobile-only">
+                <div class="stat"><span id="totalNotas">0</span><small>Notas</small></div>
+                <div class="stat"><span id="totalFavoritas">0</span><small>Favoritas</small></div>
+                <div class="stat"><span id="totalArchivos">0</span><small>Archivos</small></div>
+            </div>
+
+            <div class="toolbar">
+                <input type="text" class="search-input" placeholder="🔍 Buscar notas..." id="searchInput" oninput="buscarNotas()">
+                <button class="btn-nueva desktop-only" onclick="abrirModal()">+ Nueva nota</button>
+            </div>
+
+            <div class="filtros-mobile mobile-only">
+                <button class="filter-chip active" onclick="filtrarCategoria('todas', this)">Todas</button>
+                <button class="filter-chip" onclick="filtrarCategoria('trabajo', this)">💼 Trabajo</button>
+                <button class="filter-chip" onclick="filtrarCategoria('personal', this)">👤 Personal</button>
+                <button class="filter-chip" onclick="filtrarCategoria('ideas', this)">💡 Ideas</button>
+                <button class="filter-chip" onclick="filtrarCategoria('favoritas', this)">⭐ Favoritas</button>
+            </div>
+
+            <div class="postit-canvas" id="postitCanvas"></div>
+        </div>
+
+        <button class="fab mobile-only" onclick="abrirModal()">+</button>
+
+        <div class="navbar mobile-only">
+            <button class="nav-btn active">🏠<span>Inicio</span></button>
+            <button class="nav-btn" onclick="filtrarCategoria('favoritas', this)">⭐<span>Favoritas</span></button>
+            <button class="nav-btn" onclick="filtrarPrioridad('alta', this)">🔴<span>Urgente</span></button>
+            <button class="nav-btn" onclick="logout()">🚪<span>Salir</span></button>
+        </div>
+    </div>
+
+    <!-- Modal nueva/editar nota -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitulo">Nueva Nota</h3>
+                <button onclick="cerrarModal()">✕</button>
+            </div>
+            <input type="text" id="notaTitulo" placeholder="Título...">
+            <textarea id="notaContenido" placeholder="Escribe tu nota aquí..."></textarea>
+
+            <div class="form-row">
+                <select id="notaCategoria">
+                    <option value="general">📌 General</option>
+                    <option value="trabajo">💼 Trabajo</option>
+                    <option value="personal">👤 Personal</option>
+                    <option value="ideas">💡 Ideas</option>
+                </select>
+                <select id="notaPrioridad">
+                    <option value="media">🟡 Media</option>
+                    <option value="alta">🔴 Alta</option>
+                    <option value="baja">🟢 Baja</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label style="color:var(--text2); font-size:13px;">⏰ Recordatorio:</label>
+                <input type="datetime-local" id="notaRecordatorio" style="flex:1; padding:8px; border-radius:10px; border:none; background:var(--bg); color:var(--text);">
+            </div>
+
+            <div class="color-picker">
+                <span class="color-dot amarillo active" onclick="seleccionarColor('amarillo', this)"></span>
+                <span class="color-dot rosa" onclick="seleccionarColor('rosa', this)"></span>
+                <span class="color-dot azul" onclick="seleccionarColor('azul', this)"></span>
+                <span class="color-dot verde" onclick="seleccionarColor('verde', this)"></span>
+                <span class="color-dot morado" onclick="seleccionarColor('morado', this)"></span>
+            </div>
+
+            <div class="adjuntos-bar">
+                <label class="adj-btn" for="inputImagen">🖼️ Imagen</label>
+                <input type="file" id="inputImagen" accept="image/*" style="display:none" onchange="previewArchivo(this, 'imagen')">
+                <label class="adj-btn" for="inputArchivo">📎 Archivo</label>
+                <input type="file" id="inputArchivo" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="previewArchivo(this, 'archivo')">
+                <button class="adj-btn" onclick="abrirGrabador()">🎤 Grabar</button>
+            </div>
+
+            <div id="archivosPreview"></div>
+
+            <div id="grabadorAudio" style="display:none">
+                <div class="grabador-container">
+                    <div class="grabador-tiempo" id="grabadorTiempo">00:00</div>
+                    <div class="grabador-status" id="grabadorStatus">Listo para grabar</div>
+                    <div class="grabador-btns">
+                        <button class="adj-btn" id="btnGrabar" onclick="iniciarGrabacion()">🔴 Grabar</button>
+                        <button class="adj-btn" id="btnDetener" onclick="detenerGrabacion()" disabled>⏹️ Detener</button>
+                    </div>
+                    <audio id="audioGrabado" controls style="display:none; width:100%"></audio>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btnGuardar" onclick="guardarNota()">💾 Guardar nota</button>
+        </div>
+    </div>
+
+    <!-- Modal ver nota -->
+    <div id="modalNota" class="modal">
+        <div class="modal-content modal-ver">
+            <div class="modal-header">
+                <h3 id="verTitulo"></h3>
+                <button onclick="cerrarModalNota()">✕</button>
+            </div>
+            <div class="ver-meta">
+                <span id="verCategoria"></span>
+                <span id="verPrioridad"></span>
+                <span id="verRecordatorio"></span>
+            </div>
+            <p id="verContenido"></p>
+            <div id="verArchivos"></div>
+            <small id="verFecha"></small>
+            <div class="ver-acciones">
+                <button class="adj-btn" id="btnFavorita" onclick="toggleFavoritaModal()">⭐ Favorita</button>
+                <button class="adj-btn" onclick="activarEdicion()">✏️ Editar</button>
+                <button class="adj-btn danger" onclick="eliminarNotaModal()">🗑️ Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visor imagen -->
+    <div id="visorImagen" class="visor" onclick="cerrarVisor()">
+        <img id="visorImg" src="">
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
