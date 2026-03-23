@@ -390,7 +390,7 @@ async function guardarNota() {
         if (audioGrabado) await subirAudioGrabado(notaId);
 
         cerrarModal();
-        cargarNotas();
+        setTimeout(() => cargarNotas(), 800);
         showToast(modoEdicion ? '✅ Nota actualizada' : '✅ Nota guardada');
     } catch { showToast('Error guardando nota'); }
 }
